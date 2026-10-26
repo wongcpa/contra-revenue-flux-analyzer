@@ -215,7 +215,7 @@ header{background:#ffffff !important;border-bottom:1px solid #d1cdc4 !important}
   <!-- Flux table -->
   <div class="flux-wrap">
     <div class="flux-head-row">
-      <div>GL Account / Line</div>
+      <div>GL Account / Line <span style="text-transform:none;letter-spacing:0">(USD 000s)</span></div>
       <div style="text-align:right">Prior Period</div>
       <div style="text-align:right">Current Period</div>
       <div style="text-align:right">$ Change</div>
@@ -423,7 +423,8 @@ function fmtFull(n){
   const abs=Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
   return(n<0?'($':'$')+abs+(n<0?')':'');
 }
-function fmtK(n){return(n<0?'($':'$')+(Math.abs(n)/1000).toFixed(0)+'K'+(n<0?')':'')}
+// Input data is in USD thousands: 215200 -> $215.2M, 375 -> $375K
+function fmtK(n){const a=Math.abs(n),s=a>=1000?(a/1000).toFixed(1)+'M':a.toFixed(0)+'K';return(n<0?'($':'$')+s+(n<0?')':'')}
 
 function resetAll(){
   quarterly={};monthly={};

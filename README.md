@@ -36,7 +36,7 @@ contra-revenue-flux-analyzer/
 ├── tests/
 │   ├── test_contra_revenue_flux.py  # pytest suite — net calc, flux, anomalies, loading
 │   └── fixtures/
-│       └── contra_revenue_data.csv  # 4 quarters + 6 months of contra revenue data
+│       └── contra_revenue_data.csv  # 4 quarters + 7 months (Dec-2024 to Jun-2025)
 ├── requirements.txt
 ├── .gitignore
 └── LICENSE
@@ -87,8 +87,7 @@ python src/contra_revenue_flux.py
 ---
 
 ## Standards Applied
-- **ASC 606** — Variable consideration estimated using expected value / most likely amount
-- **SAB Topic 13** — Channel inventory and price protection accrual
+- **ASC 606-10-32-5 to 32-14** — Rebates, price protection and SPAs as variable consideration, estimated using expected value / most likely amount and subject to the constraint
 - **SOX** — Audit-ready flux documentation and commentary templates
 
 ---
