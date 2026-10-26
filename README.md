@@ -9,7 +9,7 @@ Built to reflect revenue accounting work at a Fortune 500 semiconductor company.
 ---
 
 ## Live Demo
-Open `src/index.html` → drop `fixtures/contra_revenue_data.csv` → toggle QoQ/MoM → select period pair.
+**[Try it live →](https://www.wong.cpa/contra-revenue-flux-analyzer/src/)**. Or open `src/index.html` locally → drop `tests/fixtures/contra_revenue_data.csv` → toggle QoQ/MoM → select period pair.
 
 ---
 
@@ -34,9 +34,9 @@ contra-revenue-flux-analyzer/
 │   ├── index.html               # Browser web app with waterfall + anomaly panel
 │   └── contra_revenue_flux.py   # Python CLI
 ├── tests/
-│   └── test_contra_revenue_flux.py  # pytest suite — net calc, flux, anomalies, loading
-├── fixtures/
-│   └── contra_revenue_data.csv  # 6 quarters + 6 months of contra revenue data
+│   ├── test_contra_revenue_flux.py  # pytest suite — net calc, flux, anomalies, loading
+│   └── fixtures/
+│       └── contra_revenue_data.csv  # 4 quarters + 6 months of contra revenue data
 ├── requirements.txt
 ├── .gitignore
 └── LICENSE
@@ -46,14 +46,14 @@ contra-revenue-flux-analyzer/
 
 ## Quick Start
 
-**Web app:** `open src/index.html` → drop `fixtures/contra_revenue_data.csv`.
+**Web app:** `open src/index.html` → drop `tests/fixtures/contra_revenue_data.csv`.
 
 **CLI:**
 ```bash
 git clone https://github.com/wongcpa/contra-revenue-flux-analyzer.git
 cd contra-revenue-flux-analyzer
 python src/contra_revenue_flux.py
-# Enter: fixtures/contra_revenue_data.csv
+# Enter: tests/fixtures/contra_revenue_data.csv
 ```
 
 **Tests:** `pip install pytest && pytest tests/ -v`

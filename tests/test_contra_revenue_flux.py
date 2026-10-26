@@ -96,7 +96,7 @@ class TestAnomalyDetection:
 class TestDataLoading:
     @pytest.fixture(autouse=True)
     def fx(self):
-        self.fp = os.path.join(os.path.dirname(__file__),'..','fixtures','contra_revenue_data.csv')
+        self.fp = os.path.join(os.path.dirname(__file__),'fixtures','contra_revenue_data.csv')
     def test_loads_without_error(self):
         q, m = load_data(self.fp); assert len(q) > 0 or len(m) > 0
     def test_quarterly_separated(self):
