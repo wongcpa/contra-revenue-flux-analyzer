@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contra Revenue Flux Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070a0f;--s1:#0c1018;--s2:#111720;--border:#1a2232;--border2:#222d40;
+  --amber:#f0a500;--red:#e05252;--green:#2ecc8a;--blue:#4a9eff;--purple:#a78bfa;
+  --text:#dce4f0;--muted:#4a5a70;
+  --mono:'Fira Code',monospace;--sans:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;min-height:100vh;line-height:1.55}
+
+header{padding:1.5rem 2.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:var(--sans);font-size:18px;font-weight:700;color:var(--text)}
+.logo em{font-style:normal;color:var(--amber)}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-top:2px}
+.tag{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--amber);color:var(--amber);border-radius:2px;opacity:0.7}
+
+main{padding:2rem 2.5rem;max-width:1300px;margin:0 auto}
+
+/* ── UPLOAD ── */
+.drop-area{border:1.5px dashed var(--border2);border-radius:6px;padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:all 0.18s;background:var(--s1);margin-bottom:1.5rem}
+.drop-area:hover,.drop-area.dragover{border-color:var(--amber);background:rgba(240,165,0,0.04)}
+.drop-icon{font-size:28px;opacity:0.35;margin-bottom:10px}
+.drop-title{font-family:var(--sans);font-size:15px;font-weight:600;margin-bottom:6px}
+.drop-sub{color:var(--muted);font-size:11px}
+.drop-sub span{color:var(--amber)}
+
+.file-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--s1);border:1px solid var(--border2);border-radius:4px;margin-bottom:1.5rem}
+.f-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
+.f-name{flex:1;font-size:11px}
+.f-meta{font-size:10px;color:var(--muted)}
+.clr{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;transition:color 0.15s}
+.clr:hover{color:var(--red)}
+
+/* ── CONTROLS ── */
+.controls{display:flex;gap:10px;margin-bottom:2rem;align-items:center;flex-wrap:wrap}
+.btn{font-family:var(--mono);font-size:11px;letter-spacing:0.07em;text-transform:uppercase;padding:9px 20px;border-radius:3px;cursor:pointer;border:1px solid var(--border2);background:var(--s1);color:var(--muted);transition:all 0.15s}
+.btn:hover{border-color:var(--amber);color:var(--amber)}
+.btn-primary{background:var(--amber);color:#000;border-color:var(--amber);font-weight:600}
+.btn-primary:hover{background:#ffbc2e;border-color:#ffbc2e}
+.btn-primary:disabled{background:var(--border);color:var(--muted);border-color:var(--border);cursor:not-allowed}
+.toggle-group{display:flex;border:1px solid var(--border2);border-radius:3px;overflow:hidden}
+.toggle-btn{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:8px 16px;cursor:pointer;border:none;background:var(--s1);color:var(--muted);transition:all 0.15s}
+.toggle-btn.active{background:var(--amber);color:#000;font-weight:600}
+.toggle-label{font-size:11px;color:var(--muted);margin-left:4px}
+
+/* ── PERIOD PAIR SELECTOR ── */
+.pair-selector{background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:14px 18px;margin-bottom:1.5rem;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pair-label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+select{font-family:var(--mono);font-size:11px;background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:6px 10px;border-radius:3px;outline:none;cursor:pointer;transition:border-color 0.15s;-webkit-appearance:none}
+select:focus{border-color:var(--amber)}
+.pair-arrow{color:var(--amber);font-size:18px}
+
+/* ── METRICS ── */
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:2rem}
+.mc{background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:12px 16px}
+.mc-l{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.mc-v{font-family:var(--sans);font-size:18px;font-weight:700}
+.mc-v.amber{color:var(--amber)}.mc-v.green{color:var(--green)}.mc-v.red{color:var(--red)}.mc-v.blue{color:var(--blue)}
+
+/* ── FLUX TABLE ── */
+.flux-wrap{background:var(--s1);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:1.5rem}
+.flux-head-row{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr 80px 60px;padding:9px 16px;background:var(--s2);border-bottom:1px solid var(--border);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+.flux-row{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr 80px 60px;padding:9px 16px;border-bottom:1px solid var(--border);transition:background 0.12s;align-items:center}
+.flux-row:hover{background:var(--s2)}
+.flux-row:last-child{border-bottom:none}
+.flux-row.separator{border-top:2px solid var(--border2);margin-top:2px}
+.flux-row.total{background:rgba(240,165,0,0.05);border-top:2px solid var(--border2)}
+.fr-name{font-size:12px;color:var(--text);display:flex;align-items:center;gap:8px}
+.fr-name.gross{font-weight:600;color:var(--blue)}
+.fr-name.net{font-family:var(--sans);font-weight:700}
+.fr-amt{text-align:right;font-variant-numeric:tabular-nums;font-size:12px}
+.fr-pct{text-align:right;font-size:12px;font-weight:500}
+.fr-pct.pos{color:var(--red)}
+.fr-pct.neg{color:var(--green)}
+.fr-pct.neutral{color:var(--muted)}
+.fr-dir{text-align:center;font-size:14px}
+.fr-dir.up{color:var(--red)}.fr-dir.down{color:var(--green)}.fr-dir.flat{color:var(--muted)}
+.anomaly-badge{font-size:9px;letter-spacing:0.04em;padding:2px 6px;border-radius:2px;background:rgba(240,165,0,0.15);border:1px solid rgba(240,165,0,0.3);color:var(--amber)}
+
+/* ── ANOMALY PANEL ── */
+.anomaly-panel{margin-bottom:1.5rem}
+.ap-head{display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(240,165,0,0.08);border:1px solid rgba(240,165,0,0.25);border-radius:4px 4px 0 0}
+.ap-title{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--amber)}
+.ap-body{border:1px solid rgba(240,165,0,0.2);border-top:none;border-radius:0 0 4px 4px;overflow:hidden}
+.anomaly-card{padding:16px 18px;border-bottom:1px solid var(--border)}
+.anomaly-card:last-child{border-bottom:none}
+.ac-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ac-severity{font-size:10px;letter-spacing:0.06em;text-transform:uppercase;padding:2px 8px;border-radius:2px}
+.sev-high{background:rgba(224,82,82,0.15);border:1px solid rgba(224,82,82,0.3);color:var(--red)}
+.sev-med{background:rgba(240,165,0,0.12);border:1px solid rgba(240,165,0,0.3);color:var(--amber)}
+.ac-name{font-size:12px;font-weight:500;color:var(--text)}
+.ac-body{font-size:11px;color:var(--muted);line-height:1.65}
+
+/* ── WATERFALL ── */
+.waterfall-wrap{background:var(--s1);border:1px solid var(--border);border-radius:6px;padding:1.5rem;margin-bottom:1.5rem}
+.wf-title{font-family:var(--sans);font-size:12px;font-weight:600;color:var(--muted);margin-bottom:1rem;letter-spacing:0.06em;text-transform:uppercase}
+.wf-bars{display:flex;flex-direction:column;gap:8px}
+.wf-bar-row{display:grid;grid-template-columns:180px 1fr 90px;align-items:center;gap:10px}
+.wf-label{font-size:11px;color:var(--muted);text-align:right}
+.wf-track{height:10px;background:var(--s2);border-radius:3px;position:relative;overflow:hidden}
+.wf-fill{height:100%;border-radius:3px;transition:width 0.4s ease}
+.wf-val{font-size:11px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--muted)}
+.empty-big{font-family:var(--sans);font-size:56px;font-weight:700;color:var(--border2);margin-bottom:1rem}
+
+.disclaimer{font-size:10px;color:var(--muted);padding:1rem 2.5rem;border-top:1px solid var(--border);letter-spacing:0.04em}
+@media(max-width:900px){.metrics{grid-template-columns:1fr 1fr}.flux-head-row,.flux-row{grid-template-columns:2fr 1fr 1fr 80px}main{padding:1rem}}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Flux <em>Detective</em></div>
+    <div class="logo-sub">Contra Revenue &amp; Gross-to-Net Analyzer · Model N Anomaly Detection</div>
+  </div>
+  <div class="tag">ASC 606 · SOX · 100% Local</div>
+</header>
+
+<main>
+
+<div class="drop-area" id="drop-area" ondragover="dov(event)" ondragleave="dol()" ondrop="doDrop(event)" onclick="document.getElementById('file-in').click()">
+  <div class="drop-icon">◈</div>
+  <div class="drop-title">Drop contra revenue data CSV</div>
+  <div class="drop-sub">Test fixture: <span>contra_revenue_data.csv</span></div>
+  <div class="drop-sub" style="margin-top:4px">Columns: <span>period, period_type, gross_revenue, rebates, volume_incentives, price_protection, special_price_adj_spa, returns_allowances, other_contra</span></div>
+</div>
+<input type="file" id="file-in" accept=".csv" style="display:none" onchange="handleFile(this)">
+
+<div class="file-bar" id="file-bar" style="display:none">
+  <div class="f-dot"></div>
+  <div class="f-name" id="f-name"></div>
+  <div class="f-meta" id="f-meta"></div>
+  <button class="clr" onclick="resetAll()">✕</button>
+</div>
+
+<div class="controls">
+  <div class="toggle-group">
+    <button class="toggle-btn active" id="t-qoq" onclick="setMode('qoq',this)">QoQ</button>
+    <button class="toggle-btn" id="t-mom" onclick="setMode('mom',this)">MoM</button>
+  </div>
+  <div class="pair-selector" id="pair-selector" style="display:none;padding:8px 14px">
+    <div class="pair-label">Current Period</div>
+    <select id="sel-curr" onchange="renderFlux()"></select>
+    <div class="pair-arrow">←</div>
+    <div class="pair-label">Prior Period</div>
+    <select id="sel-prior" onchange="renderFlux()"></select>
+  </div>
+  <button class="btn" id="export-btn" style="display:none" onclick="exportCSV()">Export CSV</button>
+</div>
+
+<div id="results" style="display:none">
+  <div class="metrics" id="metrics-row"></div>
+
+  <!-- Anomaly panel -->
+  <div class="anomaly-panel" id="anomaly-panel" style="display:none">
+    <div class="ap-head">
+      <div class="ap-title">⚠ Model N System Anomalies Detected</div>
+      <span style="font-size:10px;color:var(--amber)" id="anom-count"></span>
+    </div>
+    <div class="ap-body" id="anom-body"></div>
+  </div>
+
+  <!-- Waterfall -->
+  <div class="waterfall-wrap">
+    <div class="wf-title">Gross-to-Net Waterfall — Current Period</div>
+    <div class="wf-bars" id="wf-bars"></div>
+  </div>
+
+  <!-- Flux table -->
+  <div class="flux-wrap">
+    <div class="flux-head-row">
+      <div>GL Account / Line</div>
+      <div style="text-align:right">Prior Period</div>
+      <div style="text-align:right">Current Period</div>
+      <div style="text-align:right">$ Change</div>
+      <div style="text-align:right">% Change</div>
+      <div style="text-align:center">Dir</div>
+    </div>
+    <div id="flux-rows"></div>
+  </div>
+</div>
+
+<div class="empty-state" id="empty-state">
+  <div class="empty-big">MoM<br>QoQ</div>
+  <div>Upload a contra revenue CSV to begin flux analysis</div>
+</div>
+
+<div class="disclaimer">All processing is local. No data uploaded. · Model N anomaly thresholds: SPA Jan spike &gt;50%, SPA disconnect &gt;40%, PP anomaly &gt;60% without revenue growth.</div>
+</main>
+
+<script>
+const CONTRA_LINES=['rebates','volume_incentives','price_protection','special_price_adj_spa','returns_allowances','other_contra'];
+const LINE_LABELS={'gross_revenue':'Gross Revenue','rebates':'Rebates','volume_incentives':'Volume Incentives','price_protection':'Price Protection','special_price_adj_spa':'SPA / Model N Adjustments','returns_allowances':'Returns & Allowances','other_contra':'Other Contra Revenue'};
+const LINE_COLORS={'gross_revenue':'var(--blue)','rebates':'#f472b6','volume_incentives':'var(--purple)','price_protection':'var(--amber)','special_price_adj_spa':'var(--red)','returns_allowances':'#fb923c','other_contra':'var(--muted)'};
+
+let quarterly={},monthly={},mode='qoq';
+
+function dov(e){e.preventDefault();document.getElementById('drop-area').classList.add('dragover')}
+function dol(){document.getElementById('drop-area').classList.remove('dragover')}
+function doDrop(e){e.preventDefault();dol();const f=e.dataTransfer.files[0];if(f)processFile(f)}
+function handleFile(inp){if(inp.files[0])processFile(inp.files[0])}
+
+function processFile(file){
+  if(!file.name.endsWith('.csv')){alert('Please upload a .csv file.');return}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    parseData(e.target.result);
+    document.getElementById('drop-area').style.display='none';
+    document.getElementById('file-bar').style.display='flex';
+    document.getElementById('f-name').textContent=file.name;
+    document.getElementById('f-meta').textContent=(file.size/1024).toFixed(1)+' KB';
+    document.getElementById('results').style.display='block';
+    document.getElementById('empty-state').style.display='none';
+    document.getElementById('export-btn').style.display='inline-flex';
+    buildSelectors();
+    renderFlux();
+  };
+  reader.readAsText(file);
+}
+
+function parseData(text){
+  quarterly={};monthly={};
+  const lines=text.trim().split(/\r?\n/);
+  const hdrs=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+  lines.slice(1).filter(l=>l.trim()).forEach(line=>{
+    const vals=line.split(',');
+    const obj={};hdrs.forEach((h,i)=>{obj[h]=(vals[i]||'').trim().replace(/^"|"$/g,'')});
+    const period=obj.period;const type=(obj.period_type||'').toLowerCase();
+    const d={gross_revenue:+obj.gross_revenue||0};
+    CONTRA_LINES.forEach(k=>{d[k]=+obj[k]||0});
+    if(type==='quarterly')quarterly[period]=d;
+    else if(type==='monthly')monthly[period]=d;
+  });
+}
+
+function setMode(m,btn){
+  mode=m;
+  document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  buildSelectors();renderFlux();
+}
+
+function buildSelectors(){
+  const src=mode==='qoq'?quarterly:monthly;
+  const periods=Object.keys(src);
+  const curr=document.getElementById('sel-curr');
+  const prior=document.getElementById('sel-prior');
+  const ps=document.getElementById('pair-selector');
+  if(periods.length<2){ps.style.display='none';return}
+  ps.style.display='flex';
+  curr.innerHTML=periods.map((p,i)=>`<option${i===periods.length-1?' selected':''}>${p}</option>`).join('');
+  prior.innerHTML=periods.map((p,i)=>`<option${i===periods.length-2?' selected':''}>${p}</option>`).join('');
+}
+
+function computeNet(d){return d.gross_revenue-CONTRA_LINES.reduce((s,k)=>s+d[k],0)}
+
+function detectAnomalies(currPeriod,flux){
+  const anoms=[];
+  const spa=flux['special_price_adj_spa']||{};
+  const spaPct=Math.abs(spa.pct||0);
+  const pp=flux['price_protection']||{};
+  const rev=flux['gross_revenue']||{};
+  if(currPeriod.includes('Jan')&&spaPct>50)
+    anoms.push({severity:'HIGH',name:'SPA January Spike — Model N Q4 Year-End True-Up',body:'SPA increase is consistent with Model N year-end batch recalculation. Pull Model N SPA report filtered by transaction date vs. effective date to confirm prior-period catch-up vs. current activity. Recommend booking adjustment if >30 days stale.'});
+  else if(spaPct>40)
+    anoms.push({severity:'MEDIUM',name:'SPA-Revenue Disconnect — Possible Model N Config Change',body:'SPA movement is disproportionate to revenue. Common causes: (1) Model N rate table update applied retroactively, (2) distributor tier reclassification, (3) deal registration correction. Pull Model N SPA detail filtered by effective date.'});
+  if((pp.pct||0)>60&&(rev.pct||0)<10)
+    anoms.push({severity:'MEDIUM',name:'Price Protection Elevated Without Revenue Decline',body:'Price protection accrual elevated while revenue is flat. Common Model N issue: system accrues on stale inventory positions not yet confirmed by distributor. Cross-reference with channel POS data and distributor inventory reports.'});
+  return anoms;
+}
+
+function renderFlux(){
+  const src=mode==='qoq'?quarterly:monthly;
+  const periods=Object.keys(src);
+  if(periods.length<2)return;
+
+  const currPeriod=document.getElementById('sel-curr')?.value||periods[periods.length-1];
+  const priorPeriod=document.getElementById('sel-prior')?.value||periods[periods.length-2];
+  const curr=src[currPeriod];const prior=src[priorPeriod];
+  if(!curr||!prior)return;
+
+  // Compute flux
+  const allLines=['gross_revenue',...CONTRA_LINES];
+  const flux={};
+  allLines.forEach(k=>{
+    const c=curr[k]||0,p=prior[k]||0;
+    const chg=c-p;
+    const pct=p!==0?((chg/Math.abs(p))*100):0;
+    flux[k]={curr:c,prior:p,chg,pct:Math.round(pct*10)/10};
+  });
+  const currNet=computeNet(curr);const priorNet=computeNet(prior);
+  const netChg=currNet-priorNet;const netPct=priorNet?((netChg/Math.abs(priorNet))*100):0;
+
+  // Metrics
+  const contraTotal=CONTRA_LINES.reduce((s,k)=>s+(curr[k]||0),0);
+  const contraRatio=curr.gross_revenue>0?(contraTotal/curr.gross_revenue*100):0;
+  const priorContraTotal=CONTRA_LINES.reduce((s,k)=>s+(prior[k]||0),0);
+  const priorRatio=prior.gross_revenue>0?(priorContraTotal/prior.gross_revenue*100):0;
+
+  document.getElementById('metrics-row').innerHTML=`
+    <div class="mc"><div class="mc-l">Gross Revenue</div><div class="mc-v amber">${fmtK(curr.gross_revenue)}</div></div>
+    <div class="mc"><div class="mc-l">Net Revenue</div><div class="mc-v ${currNet>=0?'green':'red'}">${fmtK(currNet)}</div></div>
+    <div class="mc"><div class="mc-l">Total Contra</div><div class="mc-v red">${fmtK(contraTotal)}</div></div>
+    <div class="mc"><div class="mc-l">Contra % of Gross</div><div class="mc-v blue">${contraRatio.toFixed(1)}%</div></div>
+    <div class="mc"><div class="mc-l">Prior Contra %</div><div class="mc-v" style="color:var(--muted)">${priorRatio.toFixed(1)}%</div></div>`;
+
+  // Anomalies
+  const anoms=detectAnomalies(currPeriod,flux);
+  const ap=document.getElementById('anomaly-panel');
+  if(anoms.length){
+    ap.style.display='block';
+    document.getElementById('anom-count').textContent=anoms.length+' flag'+(anoms.length>1?'s':'');
+    document.getElementById('anom-body').innerHTML=anoms.map(a=>`
+      <div class="anomaly-card">
+        <div class="ac-head">
+          <span class="ac-severity sev-${a.severity==='HIGH'?'high':'med'}">${a.severity}</span>
+          <span class="ac-name">${a.name}</span>
+        </div>
+        <div class="ac-body">${a.body}</div>
+      </div>`).join('');
+  }else{ap.style.display='none'}
+
+  // Waterfall bars
+  const maxBar=curr.gross_revenue;
+  document.getElementById('wf-bars').innerHTML=[
+    {k:'gross_revenue',v:curr.gross_revenue},
+    ...CONTRA_LINES.map(k=>({k,v:curr[k]})),
+    {k:'net',v:currNet,isNet:true}
+  ].map(({k,v,isNet})=>`
+    <div class="wf-bar-row">
+      <div class="wf-label">${isNet?'Net Revenue':LINE_LABELS[k]||k}</div>
+      <div class="wf-track">
+        <div class="wf-fill" style="width:${Math.max(0,(v/maxBar)*100).toFixed(1)}%;background:${isNet?'var(--green)':LINE_COLORS[k]||'var(--muted)'}"></div>
+      </div>
+      <div class="wf-val" style="color:${isNet?'var(--green)':LINE_COLORS[k]||'var(--muted)'}">${fmtK(v)}</div>
+    </div>`).join('');
+
+  // Anomaly-flagged lines
+  const flaggedLines=new Set(anoms.length>0?['special_price_adj_spa']:[]); // simple flag on SPA for now
+  if(detectAnomalies(currPeriod,flux).some(a=>a.name.includes('Price')))flaggedLines.add('price_protection');
+
+  // Flux rows
+  const rows=document.getElementById('flux-rows');
+  rows.innerHTML='';
+  allLines.forEach(k=>{
+    const f=flux[k];
+    const isGross=k==='gross_revenue';
+    const pctCls=Math.abs(f.pct)>30?(f.pct>0?'pos':'neg'):'neutral';
+    const dir=f.chg>0?'up':f.chg<0?'down':'flat';
+    const dirSymbol=f.chg>0?'▲':f.chg<0?'▼':'—';
+    const flagged=flaggedLines.has(k);
+    rows.innerHTML+=`<div class="flux-row${isGross?' separator':''}">
+      <div class="fr-name${isGross?' gross':''}">
+        ${LINE_LABELS[k]||k}
+        ${flagged?'<span class="anomaly-badge">⚠ Model N</span>':''}
+      </div>
+      <div class="fr-amt">${fmtFull(f.prior)}</div>
+      <div class="fr-amt">${fmtFull(f.curr)}</div>
+      <div class="fr-amt" style="color:${f.chg>0?'var(--red)':f.chg<0?'var(--green)':'var(--muted)'}">${f.chg>=0?'+':''}${fmtFull(f.chg)}</div>
+      <div class="fr-pct ${pctCls}">${f.pct>=0?'+':''}${f.pct.toFixed(1)}%</div>
+      <div class="fr-dir ${dir}">${dirSymbol}</div>
+    </div>`;
+    if(isGross)rows.innerHTML+='';
+  });
+  // Net revenue row
+  rows.innerHTML+=`<div class="flux-row total">
+    <div class="fr-name net">NET REVENUE</div>
+    <div class="fr-amt">${fmtFull(priorNet)}</div>
+    <div class="fr-amt">${fmtFull(currNet)}</div>
+    <div class="fr-amt" style="color:${netChg>=0?'var(--green)':'var(--red)'}">${netChg>=0?'+':''}${fmtFull(netChg)}</div>
+    <div class="fr-pct ${netChg>=0?'neg':'pos'}">${netPct>=0?'+':''}${netPct.toFixed(1)}%</div>
+    <div class="fr-dir ${netChg>=0?'down':'up'}">${netChg>=0?'▲':'▼'}</div>
+  </div>`;
+}
+
+function fmtFull(n){
+  const abs=Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+  return(n<0?'($':'$')+abs+(n<0?')':'');
+}
+function fmtK(n){return(n<0?'($':'$')+(Math.abs(n)/1000).toFixed(0)+'K'+(n<0?')':'')}
+
+function resetAll(){
+  quarterly={};monthly={};
+  document.getElementById('drop-area').style.display='block';
+  document.getElementById('file-bar').style.display='none';
+  document.getElementById('results').style.display='none';
+  document.getElementById('empty-state').style.display='block';
+  document.getElementById('export-btn').style.display='none';
+  document.getElementById('pair-selector').style.display='none';
+  document.getElementById('file-in').value='';
+}
+
+function exportCSV(){
+  const src=mode==='qoq'?quarterly:monthly;
+  const periods=Object.keys(src);
+  if(periods.length<2)return;
+  let csv='flux_type,period,prior_period,line,prior,current,change,pct_chg\n';
+  for(let i=1;i<periods.length;i++){
+    const curr=src[periods[i]],prior=src[periods[i-1]];
+    ['gross_revenue',...CONTRA_LINES].forEach(k=>{
+      const c=curr[k]||0,p=prior[k]||0,chg=c-p;
+      const pct=p?((chg/Math.abs(p))*100):0;
+      csv+=`${mode.toUpperCase()},${periods[i]},${periods[i-1]},${k},${p},${c},${chg.toFixed(2)},${pct.toFixed(1)}\n`;
+    });
+  }
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='contra_revenue_flux.csv';a.click();
+}
+</script>
+</body>
+</html>
