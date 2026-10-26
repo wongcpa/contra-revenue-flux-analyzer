@@ -4,13 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contra Revenue Flux Analyzer</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='18' fill='%230F2A3D'/%3E%3Cpolyline points='44,100 74,146 112,60' fill='none' stroke='%23fff' stroke-width='18' stroke-linecap='square'/%3E%3Cpolyline points='90,100 120,146 158,60' fill='none' stroke='%23C9A45C' stroke-width='18' stroke-linecap='square'/%3E%3C/svg%3E">
 <style>
 :root{
-  --bg:#070a0f;--s1:#0c1018;--s2:#111720;--border:#1a2232;--border2:#222d40;
-  --amber:#f0a500;--red:#e05252;--green:#2ecc8a;--blue:#4a9eff;--purple:#a78bfa;
-  --text:#dce4f0;--muted:#4a5a70;
-  --mono:'Fira Code',monospace;--sans:'Space Grotesk',sans-serif;
+  --bg:#F6F6F4;--s1:#ffffff;--s2:#f5f0e8;--border:#d1cdc4;--border2:#bfb9ad;
+  --amber:#7A5F2C;--red:#b91c1c;--green:#15803d;--blue:#0F2A3D;--purple:#6d28d9;
+  --text:#0d0d0d;--muted:#6b7280;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;--sans:'Sora',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;min-height:100vh;line-height:1.55}
@@ -25,7 +27,7 @@ main{padding:2rem 2.5rem;max-width:1300px;margin:0 auto}
 
 /* ── UPLOAD ── */
 .drop-area{border:1.5px dashed var(--border2);border-radius:6px;padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:all 0.18s;background:var(--s1);margin-bottom:1.5rem}
-.drop-area:hover,.drop-area.dragover{border-color:var(--amber);background:rgba(240,165,0,0.04)}
+.drop-area:hover,.drop-area.dragover{border-color:var(--amber);background:rgba(122,95,44,0.04)}
 .drop-icon{font-size:28px;opacity:0.35;margin-bottom:10px}
 .drop-title{font-family:var(--sans);font-size:15px;font-weight:600;margin-bottom:6px}
 .drop-sub{color:var(--muted);font-size:11px}
@@ -71,7 +73,7 @@ select:focus{border-color:var(--amber)}
 .flux-row:hover{background:var(--s2)}
 .flux-row:last-child{border-bottom:none}
 .flux-row.separator{border-top:2px solid var(--border2);margin-top:2px}
-.flux-row.total{background:rgba(240,165,0,0.05);border-top:2px solid var(--border2)}
+.flux-row.total{background:rgba(122,95,44,0.05);border-top:2px solid var(--border2)}
 .fr-name{font-size:12px;color:var(--text);display:flex;align-items:center;gap:8px}
 .fr-name.gross{font-weight:600;color:var(--blue)}
 .fr-name.net{font-family:var(--sans);font-weight:700}
@@ -82,19 +84,19 @@ select:focus{border-color:var(--amber)}
 .fr-pct.neutral{color:var(--muted)}
 .fr-dir{text-align:center;font-size:14px}
 .fr-dir.up{color:var(--red)}.fr-dir.down{color:var(--green)}.fr-dir.flat{color:var(--muted)}
-.anomaly-badge{font-size:9px;letter-spacing:0.04em;padding:2px 6px;border-radius:2px;background:rgba(240,165,0,0.15);border:1px solid rgba(240,165,0,0.3);color:var(--amber)}
+.anomaly-badge{font-size:9px;letter-spacing:0.04em;padding:2px 6px;border-radius:2px;background:rgba(122,95,44,0.15);border:1px solid rgba(122,95,44,0.3);color:var(--amber)}
 
 /* ── ANOMALY PANEL ── */
 .anomaly-panel{margin-bottom:1.5rem}
-.ap-head{display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(240,165,0,0.08);border:1px solid rgba(240,165,0,0.25);border-radius:4px 4px 0 0}
+.ap-head{display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(122,95,44,0.08);border:1px solid rgba(122,95,44,0.25);border-radius:4px 4px 0 0}
 .ap-title{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--amber)}
-.ap-body{border:1px solid rgba(240,165,0,0.2);border-top:none;border-radius:0 0 4px 4px;overflow:hidden}
+.ap-body{border:1px solid rgba(122,95,44,0.2);border-top:none;border-radius:0 0 4px 4px;overflow:hidden}
 .anomaly-card{padding:16px 18px;border-bottom:1px solid var(--border)}
 .anomaly-card:last-child{border-bottom:none}
 .ac-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .ac-severity{font-size:10px;letter-spacing:0.06em;text-transform:uppercase;padding:2px 8px;border-radius:2px}
-.sev-high{background:rgba(224,82,82,0.15);border:1px solid rgba(224,82,82,0.3);color:var(--red)}
-.sev-med{background:rgba(240,165,0,0.12);border:1px solid rgba(240,165,0,0.3);color:var(--amber)}
+.sev-high{background:rgba(185,28,28,0.15);border:1px solid rgba(185,28,28,0.3);color:var(--red)}
+.sev-med{background:rgba(122,95,44,0.12);border:1px solid rgba(122,95,44,0.3);color:var(--amber)}
 .ac-name{font-size:12px;font-weight:500;color:var(--text)}
 .ac-body{font-size:11px;color:var(--muted);line-height:1.65}
 
@@ -114,9 +116,38 @@ select:focus{border-color:var(--amber)}
 
 .disclaimer{font-size:10px;color:var(--muted);padding:1rem 2.5rem;border-top:1px solid var(--border);letter-spacing:0.04em}
 @media(max-width:900px){.metrics{grid-template-columns:1fr 1fr}.flux-head-row,.flux-row{grid-template-columns:2fr 1fr 1fr 80px}main{padding:1rem}}
+
+/* ── WONG.CPA BRAND LAYER ── */
+body{font-family:'IBM Plex Sans',system-ui,sans-serif}
+.wb-bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.7rem 2.5rem;background:#0F2A3D}
+.wb-brand{display:inline-flex;align-items:center;gap:0.6rem;font-family:'Sora',system-ui,sans-serif;font-weight:600;font-size:0.95rem;color:#fff;text-decoration:none;letter-spacing:-0.01em}
+.wb-brand svg{border-radius:4px;flex:none}
+.wb-back{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;color:#C9A45C;text-decoration:none;transition:color 0.15s}
+.wb-back:hover{color:#fff}
+header{background:#ffffff !important;border-bottom:1px solid #d1cdc4 !important}
+.logo-text{font-family:'Sora',system-ui,sans-serif !important;color:#0F2A3D !important;font-style:normal !important;font-weight:700 !important;letter-spacing:-0.01em}
+.logo em{color:#7A5F2C}
+.logo-sub{color:#7A5F2C !important;font-family:'IBM Plex Mono',monospace}
+.logo-icon{border-color:#0F2A3D !important;color:#0F2A3D !important;background:#f5f0e8}
+.header-badge,.fx-badge,.std-badge,header .tag{border-color:#9A7A3E !important;color:#7A5F2C !important;opacity:1 !important}
+.wb-samples{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.35rem 1rem;padding:0.65rem 2.5rem;background:#f5f0e8;border-bottom:1px solid #d1cdc4;font-family:'IBM Plex Mono',monospace;font-size:11px}
+.wb-samples-label{letter-spacing:0.08em;text-transform:uppercase;color:#6b7280}
+.wb-samples a{color:#7A5F2C;text-decoration:none;border-bottom:1px dotted #9A7A3E}
+.wb-samples a:hover{border-bottom-style:solid}
+.wb-samples a.wb-gh{color:#6b7280;border-bottom-color:#d1cdc4}
+.btn-primary,.toggle-btn.active{background:#0F2A3D;border-color:#0F2A3D;color:#fff}
+.btn-primary:hover{background:#1B3D55;border-color:#1B3D55;color:#fff}
+.btn-primary:disabled{background:#d1cdc4;border-color:#d1cdc4;color:#6b7280}
+.results-title,.section-head h2,.empty-big,.rb-title,.pdf-icon,.dc-title{font-style:normal !important}
+.acct-code,.stmt-code,.code-cell,.fr-amt,.stmt-amount,.amount-col,.mc-l,.stat-label,.metric-label,th{font-family:'IBM Plex Mono',monospace}
+@media(max-width:900px){.wb-bar,.wb-samples{padding-left:1rem;padding-right:1rem}}
 </style>
 </head>
 <body>
+<div class="wb-bar">
+  <a class="wb-brand" href="https://www.wong.cpa/"><svg viewBox="0 0 200 200" width="26" height="26" aria-hidden="true"><rect width="200" height="200" rx="14" fill="#0F2A3D"/><polyline points="45,96 75,140 111,60" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="square"/><polyline points="89,96 119,140 155,60" fill="none" stroke="#C9A45C" stroke-width="12" stroke-linecap="square"/></svg><span>Jimmy Wong, CPA</span></a>
+  <a class="wb-back" href="https://www.wong.cpa/#projects">← All tools</a>
+</div>
 
 <header>
   <div>
@@ -125,6 +156,11 @@ select:focus{border-color:var(--amber)}
   </div>
   <div class="tag">ASC 606 · SOX · 100% Local</div>
 </header>
+<div class="wb-samples">
+  <span class="wb-samples-label">Sample data ↓</span>
+  <a href="../tests/fixtures/contra_revenue_data.csv" download>contra_revenue_data.csv</a>
+  <a class="wb-gh" href="https://github.com/wongcpa/contra-revenue-flux-analyzer/tree/main/tests/fixtures" target="_blank" rel="noopener">View on GitHub ↗</a>
+</div>
 
 <main>
 
@@ -201,7 +237,7 @@ select:focus{border-color:var(--amber)}
 <script>
 const CONTRA_LINES=['rebates','volume_incentives','price_protection','special_price_adj_spa','returns_allowances','other_contra'];
 const LINE_LABELS={'gross_revenue':'Gross Revenue','rebates':'Rebates','volume_incentives':'Volume Incentives','price_protection':'Price Protection','special_price_adj_spa':'SPA / Model N Adjustments','returns_allowances':'Returns & Allowances','other_contra':'Other Contra Revenue'};
-const LINE_COLORS={'gross_revenue':'var(--blue)','rebates':'#f472b6','volume_incentives':'var(--purple)','price_protection':'var(--amber)','special_price_adj_spa':'var(--red)','returns_allowances':'#fb923c','other_contra':'var(--muted)'};
+const LINE_COLORS={'gross_revenue':'var(--blue)','rebates':'#be185d','volume_incentives':'var(--purple)','price_protection':'var(--amber)','special_price_adj_spa':'var(--red)','returns_allowances':'#c2410c','other_contra':'var(--muted)'};
 
 let quarterly={},monthly={},mode='qoq';
 
